@@ -1584,6 +1584,22 @@ void CVulkanDevice::waitIdle(bool reset)
 	wait(m_submissionSeqNo, reset);
 }
 
+void CVulkanDevice::shutdown()
+{
+	if ( m_pipelineThread.joinable() )
+	{
+		m_pipelineThread.request_stop();
+		m_pipelineThread.join();
+	}
+
+	if ( !m_bInitialized )
+		return;
+
+	waitIdle();
+	m_pendingCmdBufs.clear();
+	m_unusedCmdBufs.clear();
+}
+
 void CVulkanDevice::resetCmdBuffers(uint64_t sequence)
 {
 	auto last = m_pendingCmdBufs.find(sequence);
@@ -3114,6 +3130,14 @@ void vulkan_present_wait_shutdown( void )
 
 	g_presentWaitThread.request_stop();
 	g_presentWaitThread.join();
+}
+
+// The driver may install exit handlers that unload it before our static
+// destructors run, so nothing may call into Vulkan once main returns.
+void vulkan_shutdown( void )
+{
+	g_device.shutdown();
+	g_output = {};
 }
 
 void vulkan_update_swapchain_hdr_metadata( VulkanOutput_t *pOutput )
