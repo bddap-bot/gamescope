@@ -477,6 +477,7 @@ uint32_t vulkan_get_rgb10_capture_format( void );
 
 void vulkan_present_to_window( void );
 void vulkan_present_wait_shutdown( void );
+void vulkan_shutdown( void );
 
 void vulkan_garbage_collect( void );
 bool vulkan_remake_swapchain( void );
@@ -847,6 +848,7 @@ public:
 	uint64_t submitInternal( CVulkanCmdBuffer* cmdBuf );
 	void wait(uint64_t sequence, bool reset = true);
 	void waitIdle(bool reset = true);
+	void shutdown();
 	void garbageCollect();
 	VkDescriptorSet descriptorSet( CVulkanCmdBuffer *pCmdBuffer );
 
